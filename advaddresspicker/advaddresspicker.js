@@ -47,13 +47,16 @@
                 <div class="advaddresspicker-content">
                     <div class="advaddresspicker-col6">
                         <div class="advaddresspicker-map-wrapper">
-                            <label for="advaddresspicker-marsearch">Search:</label>
-                            <input 
-                                type="text" 
-                                id="advaddresspicker-searchaddress"
-                                class="advaddresspicker-searchaddress"
-                                name="advaddresspicker-searchaddress">
-                            <div onclick="$.advaddresspicker.codeAddress()">search</div>
+                            <div id="advaddresspicker-toolbar">
+                                <label for="advaddresspicker-marsearch">Search:</label>
+                                <input 
+                                    type="text" 
+                                    id="advaddresspicker-searchaddress"
+                                    class="advaddresspicker-searchaddress"
+                                    name="advaddresspicker-searchaddress">
+                                <div class="advaddresspicker-searchaddress-btn" onclick="$.advaddresspicker.codeAddress()"><img src="advaddresspicker/assets/img/search.png" /></div>
+                                <div id="advaddresspicker-popup-addresses"><ul></ul></div>
+                            </div>
                             <div id="advaddresspicker-map"></div>
                         </div>
                     </div>
@@ -73,7 +76,7 @@
             el.wrapInner(htmlmodal);
             el.prepend($('<div class="advaddresspicker-modal-close">&times;</div>'));
 
-            $.getScript("https://maps.googleapis.com/maps/api/js?key=GOOGLE_API_KEY&libraries=places&solution_channel=GMP_QB_addressselection_v1_cABC", function( data, textStatus, jqxhr ) {
+            $.getScript("https://maps.googleapis.com/maps/api/js?key="+defaults.keys.GOOGLE_API_KEY+"&libraries=places&solution_channel=GMP_QB_addressselection_v1_cABC", function( data, textStatus, jqxhr ) {
                 initmap();
             });
 
@@ -167,8 +170,6 @@
             */
         }
 
-        
-
         function checkResponsive() {
             var responsive_obj = settings.responsive;
             if (Object.keys(responsive_obj).length !== 0) {
@@ -228,9 +229,6 @@
             if (settings.theme !== '') {
                 $(this_e).addClass(settings.theme);
             }
-            
-            
-            
 
             if (settings.openAfterNClicks !== null) {
                 var x = 12 * 12; //or whatever offset
@@ -295,8 +293,6 @@
                 });
             }
         }
-
-
     };
 
     $.advaddresspicker.codeAddress_old = function() {
@@ -348,6 +344,7 @@
 
     $.advaddresspicker.codeAddress = function() {
         var address = document.getElementById('advaddresspicker-searchaddress').value;
+        var addresses_list = document.getElementById('advaddresspicker-popup-addresses');
 
         const request = {
             query: address,
@@ -358,12 +355,28 @@
         service.findPlaceFromQuery(request, (results, status) => {
             if (status === google.maps.places.PlacesServiceStatus.OK && results) {
               for (let i = 0; i < results.length; i++) {
-                createMarker(results[i]);
+                //createMarker(results[i].geometry.location);
+                addAddress2list(results[i]);
               }
         
               map.setCenter(results[0].geometry.location);
             }
         });
+
+        function addAddress2list(location) {
+            console.log(location);
+            var ul = addresses_list.querySelector('ul');
+            var li = document. createElement("li");
+            li.appendChild(document.createTextNode(location.name));
+            ul.appendChild(li);
+        }
+
+        function createMarker(location) {
+            marker = new google.maps.Marker({
+                position: location,
+                map: map
+            });
+        }
     }
 
 }( jQuery ));

@@ -1,3 +1,3 @@
 var config = {
-    GOOGLE_API_KEY: YOUR_API_KEY,
+    GOOGLE_API_KEY: API_KEY,
 }

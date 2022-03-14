@@ -7,6 +7,8 @@ const cors = require('cors');
 var livereload = require("livereload");
 var connectLiveReload = require("connect-livereload");
 
+path.win32.basename('/');
+
 const liveReloadServer = livereload.createServer();
 liveReloadServer.server.once("connection", () => {
   setTimeout(() => {
@@ -14,7 +16,8 @@ liveReloadServer.server.once("connection", () => {
   }, 100);
 }); 
 
-app.use(express.static(__dirname));
+var staticFilesPath = path.resolve(__dirname, '../');
+app.use(express.static(staticFilesPath));
 app.use(connectLiveReload());
 
 app.get('/', function(request, response, next){
