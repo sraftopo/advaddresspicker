@@ -27,6 +27,9 @@
                 prefecture: '',
                 country: ''
             },
+            keys:{
+                GOOGLE_API_KEY: config.GOOGLE_API_KEY
+            },
             dynAddress: true,
             responsive:{},
             onInitialize: function (e) {}, //event/callback
