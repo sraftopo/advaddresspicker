@@ -1,7 +1,8 @@
 (function ( $ ) {
     var geocoder;
     var map;
-    $.advaddresspicker = function() {    }
+    var markers = new Array();
+    $.advaddresspicker = function() { }
     $.fn.advaddresspicker = function( options ) {
 
         // default settings:
@@ -295,80 +296,53 @@
         }
     };
 
-    $.advaddresspicker.codeAddress_old = function() {
-        var address = document.getElementById('advaddresspicker-searchaddress').value;
-        geocoder.geocode( { 
-            'address': address,
-            componentRestrictions: {
-                country: 'GR'
-            }
-        }, function(results, status) {
-            console.log(results);
-            if (status == 'OK') {
-                map.setCenter(results[0].geometry.location);
-                var marker = new google.maps.Marker({
-                    map: map,
-                    position: results[0].geometry.location
-                });
-            } else {
-                alert('Geocode was not successful for the following reason: ' + status);
-            }
-        });
-    }
-
-    $.advaddresspicker.codeAddress_old2 = function() {
-        var address = document.getElementById('advaddresspicker-searchaddress').value;
-        console.log('address:', address);
-        $.ajax({
-            url: "https://maps.googleapis.com/maps/api/place/textsearch/json?query="+encodeURIComponent(address)+"&key=AIzaSyDVY2uu3C6dzv0A2j-YLqsXbM7IYaZXHmA",
-            headers: {  
-                'Access-Control-Allow-Origin': '*',
-                'Access-Control-Allow-Methods': '*',
-                'Access-Control-Allow-Headers': '*',
-                "Access-Control-Allow-Credentials": "true",
-
-            },
-            type: 'GET',
-            crossDomain: true,
-            dataType: 'json',
-            contentType: 'application/json',
-            processData: false,
-            xhrFields: {
-                withCredentials: true
-            }
-        }).done(function(results, status) {
-            console.log("status:",status);
-            console.log("results:",results);
-        });
-    }
 
     $.advaddresspicker.codeAddress = function() {
         var address = document.getElementById('advaddresspicker-searchaddress').value;
         var addresses_list = document.getElementById('advaddresspicker-popup-addresses');
 
+        var Addresses_results = [];
+
         const request = {
             query: address,
-            fields: ["name", "geometry"],
+            fields: ["name", "formatted_address", "geometry"],
         };
         service = new google.maps.places.PlacesService(map);
         
         service.findPlaceFromQuery(request, (results, status) => {
             if (status === google.maps.places.PlacesServiceStatus.OK && results) {
-              for (let i = 0; i < results.length; i++) {
-                //createMarker(results[i].geometry.location);
-                addAddress2list(results[i]);
-              }
+                for (let i = 0; i < results.length; i++) {
+                    //createMarker(results[i].geometry.location);
+                    addAddress2list(results[i]);
+                }
+
+                
         
               map.setCenter(results[0].geometry.location);
             }
         });
 
+        $('.fLocation').click(showNfocusMarker(Addresses_results[i]));
+
         function addAddress2list(location) {
             console.log(location);
             var ul = addresses_list.querySelector('ul');
-            var li = document. createElement("li");
-            li.appendChild(document.createTextNode(location.name));
+            var li = document.createElement("li");
+            li.appendChild(document.createTextNode(location.formatted_address));
+            li.className = 'fLocation';
             ul.appendChild(li);
+            Addresses_results.push(location);
+        }
+
+        function showNfocusMarker(location){
+            console.log("mouseenter: ",location);
+            //delAllMarkers();
+            //createMarker(location);
+            //focusMarker(location);
+        }
+
+        function delAllMarkers(){
+            markers = [];
         }
 
         function createMarker(location) {
@@ -376,6 +350,11 @@
                 position: location,
                 map: map
             });
+            markers.push(marker);
+        }
+
+        function focusMarker(location){
+            map.setCenter(location.getPosition());
         }
     }
 
